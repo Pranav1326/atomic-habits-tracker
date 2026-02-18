@@ -27,7 +27,10 @@ export default function DayModal({ date, onClose }: DayModalProps) {
   useEffect(() => {
     if (habits.length === 0) return
     const mapped: DailyHabitStatus[] = habits.map((habit) => {
-      const entry = dailyEntries.find((e) => e.habit === habit._id)
+      const entry = dailyEntries.find((e) => {
+        const entryHabitId = typeof e.habit === 'string' ? e.habit : e.habit._id
+        return entryHabitId === habit._id
+      })
       return {
         habitId: habit._id,
         habitName: habit.name,

@@ -8,13 +8,13 @@ export interface StreakResult {
 
 /**
  * Calculates current and longest streak from contribution days.
- * A "clean day" has count > 0.
+ * A "clean day" has cleanDay = true.
  */
 export const calculateStreaks = (contributions: ContributionDay[]): StreakResult => {
   if (contributions.length === 0) return { current: 0, longest: 0 }
 
   const sorted = [...contributions]
-    .filter((d) => d.count > 0)
+    .filter((d) => d.cleanDay)
     .map((d) => d.date)
     .sort()
 

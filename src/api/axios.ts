@@ -1,5 +1,11 @@
 import axios from 'axios'
+import type { AxiosResponse } from 'axios'
 import toast from 'react-hot-toast'
+
+interface ApiResponse<T> {
+  success: boolean
+  data: T
+}
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -21,7 +27,13 @@ apiClient.interceptors.request.use(
 )
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response: AxiosResponse) => {
+    const body = response.data as ApiResponse<unknown>
+    if (body && typeof body === 'object' && 'success' in body && 'data' in body) {
+      response.data = body.data
+    }
+    return response
+  },
   (error) => {
     const message: string =
       (error.response?.data as { message?: string })?.message ??

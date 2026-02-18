@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import MainHeatmap from '@/components/heatmap/MainHeatmap'
+import HabitMonthHeatmap from '@/components/heatmap/HabitMonthHeatmap'
 import DayModal from '@/components/heatmap/DayModal'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import StatCard from '@/components/ui/StatCard'
@@ -10,7 +11,15 @@ import { today, formatDisplay } from '@/utils/date'
 
 export default function Dashboard() {
   const { habits, fetchHabits, loading: habitsLoading } = useHabitStore()
-  const { contributions, fetchContributions, loadingContributions, fetchDailyEntries, dailyEntries } = useEntryStore()
+  const { 
+    contributions, 
+    fetchContributions, 
+    loadingContributions, 
+    fetchDailyEntries, 
+    dailyEntries,
+    habitContributions,
+    fetchHabitContributions
+  } = useEntryStore()
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
   useEffect(() => {
@@ -19,10 +28,19 @@ export default function Dashboard() {
     fetchDailyEntries(today())
   }, [fetchHabits, fetchContributions, fetchDailyEntries])
 
+  // Fetch habit contributions for each habit
+  useEffect(() => {
+    habits.forEach((habit) => {
+      if (!habitContributions[habit._id]) {
+        fetchHabitContributions(habit._id)
+      }
+    })
+  }, [habits, habitContributions, fetchHabitContributions])
+
   const { current, longest } = calculateStreaks(contributions)
   const todayCompleted = dailyEntries.filter((e) => e.completed).length
   const totalToday = habits.length
-  const cleanDaysTotal = contributions.filter((c) => c.count > 0).length
+  const cleanDaysTotal = contributions.filter((c) => c.cleanDay).length
 
   const isLoading = habitsLoading || loadingContributions
 
@@ -90,6 +108,35 @@ export default function Dashboard() {
               contributions={contributions}
               onDayClick={setSelectedDate}
             />
+          </div>
+
+          <div className="bg-surface border border-border rounded-lg p-5">
+            <h2 className="text-base font-semibold text-text-primary mb-4">
+              This Month's Progress
+            </h2>
+            {habits.length === 0 ? (
+              <p className="text-muted text-sm">
+                No habits yet. <a href="/habits" className="text-accent hover:underline">Create your first habit →</a>
+              </p>
+            ) : (
+              <div className="space-y-6">
+                {habits.map((habit) => (
+                  <div key={habit._id} className="bg-background rounded-md p-4 border border-border">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: habit.color }}
+                      />
+                      <h3 className="text-sm font-medium text-text-primary">{habit.name}</h3>
+                    </div>
+                    <HabitMonthHeatmap
+                      contributions={habitContributions[habit._id] ?? []}
+                      color={habit.color}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="bg-surface border border-border rounded-lg p-5">

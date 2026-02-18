@@ -7,20 +7,24 @@ export const entriesApi = {
     return data
   },
 
-  getContributions: async (): Promise<ContributionDay[]> => {
-    const { data } = await apiClient.get<ContributionDay[]>('/entries/contributions')
-    return data
+  getContributions: async (startDate: string, endDate: string): Promise<ContributionDay[]> => {
+    const { data } = await apiClient.get<ContributionDay[]>(`/entries/contributions?startDate=${startDate}&endDate=${endDate}`)
+    return data;
   },
 
-  getHabitContributions: async (habitId: string): Promise<HabitContributionDay[]> => {
+  getHabitContributions: async (
+    habitId: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<HabitContributionDay[]> => {
     const { data } = await apiClient.get<HabitContributionDay[]>(
-      `/entries/contributions/${habitId}`,
+      `/entries/contributions/${habitId}?startDate=${startDate}&endDate=${endDate}`,
     )
     return data
   },
 
-  logEntry: async (habitId: string): Promise<Entry> => {
-    const { data } = await apiClient.post<Entry>(`/entries/${habitId}`)
+  logEntry: async (habitId: string, date: string, completed: boolean = true): Promise<Entry> => {
+    const { data } = await apiClient.post<Entry>(`/entries/${habitId}`, { date, completed })
     return data
   },
 

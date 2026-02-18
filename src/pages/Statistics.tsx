@@ -45,11 +45,11 @@ export default function Statistics() {
   }, [habits, habitContributions, fetchHabitContributions])
 
   const { current, longest } = calculateStreaks(contributions)
-  const cleanDaysTotal = contributions.filter((c) => c.count > 0).length
+  const cleanDaysTotal = contributions.filter((c) => c.cleanDay).length
 
   const chartData: ChartDataPoint[] = habits.map((habit) => {
     const contribs = habitContributions[habit._id] ?? []
-    const completed = contribs.filter((c) => c.count > 0).length
+    const completed = contribs.filter((c) => c.completed === 1).length
     const pct = calculateCompletionPercentage(completed, habit.createdAt)
     return {
       name: habit.name.length > 14 ? `${habit.name.slice(0, 14)}…` : habit.name,
